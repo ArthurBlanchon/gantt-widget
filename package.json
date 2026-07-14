@@ -1,7 +1,7 @@
 {
   "name": "gantt-widget",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.2.15",
   "grist": {
     "name": "Gantt",
     "widgetId": "@arthurblanchon/gantt",
