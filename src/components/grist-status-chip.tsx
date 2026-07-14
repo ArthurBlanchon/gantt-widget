@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { GristHandshakeProvider, useGristHandshakeContext } from "grist-widget-sdk/advanced"
+import { useAmbientGristHandshake, type GristWidgetSnapshot } from "grist-widget-sdk/advanced"
 
 import { deriveDisplayStatus, type HandshakeDisplayStatus } from "@/lib/grist-handshake-status"
 import { cn } from "@/lib/utils"
@@ -83,8 +83,7 @@ function ChipVisual({ display, secondsLeft }: { display: HandshakeDisplayStatus;
   }
 }
 
-function RealChipContents() {
-  const { snapshot } = useGristHandshakeContext()
+function RealChipContents({ snapshot }: { snapshot: GristWidgetSnapshot }) {
   const display = deriveDisplayStatus(snapshot.lifecycle)
   const retryAttempts = display.kind === "retrying" ? display.attempts : 0
   const secondsLeft = useRetryCountdown(retryAttempts, display.kind === "retrying")
@@ -93,25 +92,25 @@ function RealChipContents() {
 
 /**
  * Small pill showing live Grist handshake status while actually embedded in
- * Grist. Mounts its own `<GristHandshakeProvider>` alongside
- * `<GristWidgetProvider>` -- documented (grist-widget-sdk/advanced) as safe
- * to coexist, since both share the page's `ensureGristReady()` singleton.
- * Purely observational: it never drives the real widget's connection, just
- * reflects it.
+ * Grist. Must be mounted *inside* `<GristWidgetProvider>` -- it only observes
+ * that provider's own handshake manager (`useAmbientGristHandshake()`,
+ * `grist-widget-sdk/advanced`) and never mounts its own, so it can't ever run
+ * a second, competing `grist.ready()` call. Renders nothing outside a
+ * provider.
  */
 export function GristStatusChip({ className }: { className?: string }) {
+  const handshake = useAmbientGristHandshake()
+  if (!handshake) return null
   return (
-    <GristHandshakeProvider>
-      <div className="pointer-events-none fixed top-2 right-2 z-50">
-        <div
-          className={cn(
-            "flex items-center gap-1.5 rounded-full border bg-background/90 px-2.5 py-1 text-xs text-muted-foreground shadow-sm backdrop-blur",
-            className,
-          )}
-        >
-          <RealChipContents />
-        </div>
+    <div className="pointer-events-none fixed top-2 right-2 z-50">
+      <div
+        className={cn(
+          "flex items-center gap-1.5 rounded-full border bg-background/90 px-2.5 py-1 text-xs text-muted-foreground shadow-sm backdrop-blur",
+          className,
+        )}
+      >
+        <RealChipContents snapshot={handshake.snapshot} />
       </div>
-    </GristHandshakeProvider>
+    </div>
   )
 }

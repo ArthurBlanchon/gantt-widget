@@ -35,20 +35,18 @@ createRoot(document.getElementById("root")!).render(
           <TemplateLanding />
         </div>
       ) : isEmbedded ? (
-        <>
+        <GristWidgetProvider options={GRIST_OPTIONS}>
           <GristStatusChip />
-          <GristWidgetProvider options={GRIST_OPTIONS}>
-            <GristBoundary
-              gate={GRIST_OPTIONS.columns?.length ? "canRender" : "ready"}
-            >
-              <div className="min-h-full w-full bg-background text-foreground">
-                <GristSdkAlerts>
-                  <App />
-                </GristSdkAlerts>
-              </div>
-            </GristBoundary>
-          </GristWidgetProvider>
-        </>
+          <GristBoundary
+            gate={GRIST_OPTIONS.columns?.length ? "canRender" : "ready"}
+          >
+            <div className="min-h-full w-full bg-background text-foreground">
+              <GristSdkAlerts>
+                <App />
+              </GristSdkAlerts>
+            </div>
+          </GristBoundary>
+        </GristWidgetProvider>
       ) : (
         <div className="min-h-full w-full bg-background text-foreground">
           <ChannelNotice channel={channel} hubPath={hubPath} />
