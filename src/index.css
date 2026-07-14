@@ -39,6 +39,7 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
+    --color-backdrop: var(--background);
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -50,6 +51,7 @@
 
 :root {
     color-scheme: light;
+    --gantt-sequence-line: color-mix(in oklch, var(--foreground) 14%, transparent);
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -117,6 +119,7 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
+    --gantt-sequence-line: color-mix(in oklch, var(--foreground) 18%, transparent);
 }
 
 @layer base {
@@ -137,5 +140,16 @@
   }
   #root {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* One inset line per boundary — avoids stacked ::after + border artifacts. */
+  .gantt-sequence-divider-top {
+    box-shadow: inset 0 1px 0 0 var(--gantt-sequence-line);
+  }
+
+  .gantt-group-divider-bottom {
+    box-shadow: inset 0 -1px 0 0 var(--gantt-sequence-line);
   }
 }
