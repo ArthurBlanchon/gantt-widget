@@ -15,6 +15,7 @@ import {
   type GanttFeature,
   type Range,
 } from "@/components/kibo-ui/gantt"
+import { GristStatusChip } from "@/components/grist-status-chip"
 import { Button } from "@/components/ui/button"
 import {
   buildGanttGroups,
@@ -99,6 +100,8 @@ export function App() {
       eventStatusChoiceStyles: buildChoiceStyleMap(table, eventStatusColId),
     }
   }, [schema.table, schema.document, w.currentTableId, groupColId, eventStatusColId])
+
+  const tableLabel = schema.table?.label || w.currentTableId || "Issues"
 
   const [fallbackRows, setFallbackRows] = useState<
     readonly GristRowRecord[] | null
@@ -242,10 +245,13 @@ export function App() {
 
   if (!w.columnMappingStatus.ok && !w.columnMappingStatus.pending) {
     return (
-      <StatusPanel
-        title="Map columns in the widget panel"
-        body={`Required: Group_name (Text, Ref, or Choice), Sequence_name, Event_name, Event_start_date, Event_end_date. Optional: Event_status_color (Choice). Missing: ${w.columnMappingStatus.missing.join(", ")}`}
-      />
+      <>
+        <GristStatusChip />
+        <StatusPanel
+          title="Map columns in the widget panel"
+          body={`Required: Group_name (Text, Ref, or Choice), Sequence_name, Event_name, Event_start_date, Event_end_date. Optional: Event_status_color (Choice). Missing: ${w.columnMappingStatus.missing.join(", ")}`}
+        />
+      </>
     )
   }
 
@@ -318,7 +324,7 @@ export function App() {
           className="h-full"
           range={timeScale}
         >
-          <GanttSidebar>
+          <GanttSidebar label={tableLabel}>
             {groups.map((group) => (
               <GanttSidebarGroup key={group.id} name={group.name}>
                 {group.sequences.map((sequence, sequenceIndex) => (
