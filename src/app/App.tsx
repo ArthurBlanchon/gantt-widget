@@ -33,9 +33,9 @@ import {
   type GristWidgetColumnMap,
 } from "grist-widget-sdk"
 
-import type { EventMapped, EventRow } from "./grist-types"
+import type { EventMapped, EventRow } from "@/grist-types"
 
-export { GRIST_OPTIONS } from "./grist-options"
+export { GRIST_OPTIONS } from "@/grist-options"
 
 export const WIDGET_METADATA = {
   title: "Gantt",
