@@ -30,8 +30,8 @@
         min-height: 100%;
       }
     </style>
-    <script type="module" crossorigin src="/gantt-widget/dev/assets/index-DfNEXcbV.js"></script>
-    <link rel="stylesheet" crossorigin href="/gantt-widget/dev/assets/index-AWRUh1c2.css">
+    <script type="module" crossorigin src="/gantt-widget/dev/assets/index-B-q-5Yhz.js"></script>
+    <link rel="stylesheet" crossorigin href="/gantt-widget/dev/assets/index-CKbbP9cI.css">
   </head>
   <body>
     <div id="root"></div>
@@ -39,7 +39,7 @@
   <script>
 /* grist-widget-sdk dev channel: auto-reload when a newer build is published. */
 (function () {
-  var CURRENT = "ad67991";
+  var CURRENT = "0b9a59e";
   var POLL_MS = 5000;
   async function check() {
     try {
@@ -53,6 +53,12 @@
       }
     } catch (e) { /* transient offline / 404 during publish: keep polling */ }
   }
+  check(); // don't wait a full POLL_MS for the first check -- a plain
+           // (non-cache-busted) request for this very page can hit a stale
+           // CDN-cached index.html referencing JS assets a newer deploy
+           // already deleted, producing a blank/black screen until this
+           // fires; found live, waiting the full interval left that
+           // black screen up for ~5s on a fresh visit.
   setInterval(check, POLL_MS);
 })();
 </script>
