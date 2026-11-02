@@ -4,6 +4,10 @@ A Grist custom widget built with `grist-widget-sdk`: a timeline grouped by
 `Group_name` and `Sequence_name`, with bar colors driven by
 `Event_status_color` Choice styling.
 
+<!-- install-url:start -->
+**Install URL**, to paste into a Grist custom widget's URL field: <https://arthurblanchon.github.io/gantt-widget/latest/>
+<!-- install-url:end -->
+
 `src/main.tsx` wraps the app with `GristWidgetProvider`, `GristBoundary`, and `GristSdkAlerts`. The latter maps `getGristSdkAlertDescriptors()` from the SDK to shadcn `Alert` (`src/components/grist-sdk-alerts.tsx` + `src/components/ui/alert.tsx`); keep them in sync with the playground when you change alert styling.
 
 Opened outside a Grist iframe, `main.tsx` picks between two components purely by URL shape (`src/lib/showcase-routing.ts`, no router needed): a bare path with no recognized channel suffix renders `TemplateLanding` (its own hero, onboarding, and released-version index); `/latest/`, `/dev/`, or `/v<version>/` renders `ChannelNotice` instead — a distinct hero explaining which build this is, chips to jump to any other version/channel (`src/lib/showcase-versions.ts`), and a copy-this-URL helper for pasting into Grist's custom widget field.
