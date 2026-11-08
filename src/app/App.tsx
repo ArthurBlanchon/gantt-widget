@@ -15,7 +15,6 @@ import {
   type GanttFeature,
   type Range,
 } from "@/components/kibo-ui/gantt"
-import { GristStatusChip } from "@/components/grist-status-chip"
 import { Button } from "@/components/ui/button"
 import {
   buildGanttGroups,
@@ -34,9 +33,9 @@ import {
   type GristWidgetColumnMap,
 } from "grist-widget-sdk"
 
-import type { EventMapped, EventRow } from "./grist-types"
+import type { EventMapped, EventRow } from "@/grist-types"
 
-export { GRIST_OPTIONS } from "./grist-options"
+export { GRIST_OPTIONS } from "@/grist-options"
 
 export const WIDGET_METADATA = {
   title: "Gantt",
@@ -245,13 +244,10 @@ export function App() {
 
   if (!w.columnMappingStatus.ok && !w.columnMappingStatus.pending) {
     return (
-      <>
-        <GristStatusChip />
-        <StatusPanel
-          title="Map columns in the widget panel"
-          body={`Required: Group_name (Text, Ref, or Choice), Sequence_name, Event_name, Event_start_date, Event_end_date. Optional: Event_status_color (Choice). Missing: ${w.columnMappingStatus.missing.join(", ")}`}
-        />
-      </>
+      <StatusPanel
+        title="Map columns in the widget panel"
+        body={`Required: Group_name (Text, Ref, or Choice), Sequence_name, Event_name, Event_start_date, Event_end_date. Optional: Event_status_color (Choice). Missing: ${w.columnMappingStatus.missing.join(", ")}`}
+      />
     )
   }
 
