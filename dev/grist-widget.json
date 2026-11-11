@@ -42,7 +42,7 @@
       "url": "https://github.com/ArthurBlanchon"
     }
   ],
-  "lastUpdatedAt": "2026-11-11T14:16:12.635Z",
+  "lastUpdatedAt": "2026-11-11T14:39:20.770Z",
   "gristWidgetSdk": {
     "schema": 1,
     "channel": "dev",
@@ -50,6 +50,7 @@
     "repository": "https://github.com/ArthurBlanchon/gantt-widget",
     "license": "MIT",
     "sdk": "0.4.0",
-    "createGristWidget": "0.4.0"
+    "createGristWidget": "0.4.0",
+    "demo": "https://arthurblanchon.github.io/gantt-widget/dev/demo/"
   }
 }
