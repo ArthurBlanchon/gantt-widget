@@ -1,7 +1,7 @@
 {
   "name": "Gantt",
   "widgetId": "@arthurblanchon/gantt-widget",
-  "url": "https://arthurblanchon.github.io/gantt-widget/v0.1.0/",
+  "url": "https://arthurblanchon.github.io/gantt-widget/v0.2.0/",
   "published": true,
   "accessLevel": "full",
   "columns": [
@@ -42,14 +42,15 @@
       "url": "https://github.com/ArthurBlanchon"
     }
   ],
-  "lastUpdatedAt": "2026-11-08T18:28:37.077Z",
+  "lastUpdatedAt": "2026-11-12T16:40:50.032Z",
   "gristWidgetSdk": {
     "schema": 1,
     "channel": "release",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "repository": "https://github.com/ArthurBlanchon/gantt-widget",
     "license": "MIT",
-    "sdk": "0.3.27",
-    "createGristWidget": "0.3.32"
+    "sdk": "0.4.0",
+    "createGristWidget": "0.4.0",
+    "demo": "https://arthurblanchon.github.io/gantt-widget/v0.2.0/demo/"
   }
 }
