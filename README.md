@@ -1,74 +1,80 @@
 # gantt-widget
 
-A Grist custom widget built with `grist-widget-sdk`: a timeline grouped by
-`Group_name` and `Sequence_name`, with bar colors driven by
-`Event_status_color` Choice styling.
+A Grist custom widget: a Gantt timeline of your table's events, grouped into
+sections and rows. Each row of the table is an event with a start and an end
+date; events with the same `Sequence_name` share a timeline row, and rows
+with the same `Group_name` share a section. Bars take their color from a
+`Event_status_color` Choice column's own colors in Grist (and section
+accents from `Group_name`'s, when it is a Choice).
 
 <!-- install-url:start -->
 **Install URL**, to paste into a Grist custom widget's URL field: <https://arthurblanchon.github.io/gantt-widget/latest/>
 <!-- install-url:end -->
 
-`src/main.tsx` wraps the app with `GristWidgetProvider`, `GristBoundary`, and `GristSdkAlerts`. The latter maps `getGristSdkAlertDescriptors()` from the SDK to shadcn `Alert` (`src/components/grist-sdk-alerts.tsx` + `src/components/ui/alert.tsx`); keep them in sync with the playground when you change alert styling.
+**Try it:** <https://arthurblanchon.github.io/gantt-widget/latest/demo/>, Grist running in your browser with sample data (nothing is saved).
 
-Opened outside a Grist iframe, `main.tsx` picks between two components purely by URL shape (`src/lib/showcase-routing.ts`, no router needed): a bare path with no recognized channel suffix renders `TemplateLanding` (its own hero, onboarding, and released-version index); `/latest/`, `/dev/`, or `/v<version>/` renders `ChannelNotice` instead — a distinct hero explaining which build this is, chips to jump to any other version/channel (`src/lib/showcase-versions.ts`), and a copy-this-URL helper for pasting into Grist's custom widget field.
+## In Grist
 
-When actually embedded, `GristStatusChip` (`src/components/grist-status-chip.tsx`) shows a small pill with live handshake status — connecting, retrying with a countdown, connected, or unavailable — using `useGristHandshakeContext()` from `grist-widget-sdk/advanced` in its own `<GristHandshakeProvider>`. Safe to mount alongside `GristWidgetProvider`: both share the page's `ensureGristReady()` singleton (see `apps/docs/api/handshake.md`), so this is purely observational and never duplicates the real handshake.
+Add a custom widget, paste the install URL, and set its access level to
+**Full document access** (to read the Choice columns' colors).
 
-`src/App.tsx` uses `useGrist()` for the selected table's rows, mapped via `GRIST_OPTIONS` (`src/grist-options.ts`) into groups/sequences/events — see `src/grist-types.ts` for the real column typings and `src/lib/build-gantt-groups.ts` for how rows become the Gantt's group/sequence tree.
+Then map its columns:
 
-- **ESLint** blocks direct `grist` global usage in `src/` — use the SDK only.
-- `GRIST_OPTIONS.columns` (in `src/grist-options.ts`) declares the required `Group_name`, `Sequence_name`, `Event_name`, `Event_start_date`, `Event_end_date` columns and the optional `Event_status_color` Choice column; `main.tsx` sets `GristBoundary gate="canRender"` accordingly. Mapping alerts use `GristSdkAlerts`.
+| Column | Type | What it is |
+| --- | --- | --- |
+| `Group_name` | Text, Ref or Choice | the section |
+| `Sequence_name` | Text or Ref | the timeline row |
+| `Event_name` | Text | the bar's label |
+| `Event_start_date` | Date | start |
+| `Event_end_date` | Date | end |
+| `Event_status_color` | Choice, optional | the bar's color |
 
-To add widget tests later, see [Testing](https://github.com/ArthurBlanchon/grist-widget-sdk/blob/main/apps/docs/guide/testing.md) (`renderWithGrist` from `grist-widget-sdk/emulator/testing`).
+## Code
 
-## Deployment
+The widget's own code is in `src/`:
 
-A bundled GitHub Actions workflow (`.github/workflows/deploy.yml` +
-`scripts/deploy.mjs`) publishes this widget to **your own** GitHub Pages.
+- `src/app/App.tsx` reads the mapped rows with `useGrist()` and the table's
+  column settings with `useGristSchema()`, then builds the groups and rows
+  (`src/lib/build-gantt-groups.ts`, `src/lib/gantt-row-layout.ts`) and their
+  colors (`src/lib/grist-colors.ts`).
+- The timeline is the kibo-ui Gantt component, in
+  `src/components/kibo-ui/gantt/`.
+- `GRIST_OPTIONS` is in `src/grist-options.ts`.
 
-### The workflow: always develop on `dev`, release by merging to `main`
+## Develop
 
-1. Commit and push to the `dev` branch (created for you at scaffold time).
-   Every push auto-deploys a live preview at `/dev/` that self-reloads
-   inside an open Grist document a few seconds later — paste that URL into
-   a Grist doc once, then just keep pushing while you iterate.
-2. Ready to publish a release? **Bump `package.json`'s `version`** as part
-   of your `dev` branch changes, then open a PR from `dev` into `main`.
-3. **Merge the PR.** This is the step that actually publishes — merging to
-   `main` builds immutable `/v<version>/` and updates mutable `/latest/`.
+Develop on the `dev` branch; every push deploys `/dev/`
+(<https://arthurblanchon.github.io/gantt-widget/dev/>), which reloads itself in an
+open Grist document a few seconds later.
 
-> ⚠️ **Merging without bumping the version publishes nothing.** The release
-> build is idempotent — it skips whenever `package.json`'s version already
-> has a matching `v<version>/` directory published, which is always true if
-> you forgot to bump it (it'll match whatever's already live). The PR merges
-> cleanly and CI runs "successfully," but `/latest/` silently stays exactly
-> as it was. Bump the version *before* merging, not after.
+| | |
+| --- | --- |
+| Install | `pnpm install` |
+| Test (emulated Grist, no browser) | `pnpm test` |
+| Lint, type-check, build | `pnpm lint`, `pnpm typecheck`, `pnpm build` |
+| The widget in a real local Grist (Docker) | `pnpm demo` |
+| Regenerate the demo page | `pnpm demo --save` |
 
-After merging, keep committing to the same `dev` branch for your next round
-of changes — it's the permanent working/preview branch for this widget, not
-a one-off feature branch to delete and recreate. Deleting it retires `/dev/`
-automatically.
+`src/main.tsx` is one `mountGristWidget()` call from `grist-widget-sdk/app`:
+inside Grist it renders the widget behind the SDK's connection and
+column-mapping screens, with its alerts, in Grist's light or dark theme.
+Opened anywhere else, it shows which build this is and the URL to paste into
+Grist. The widget's code reads Grist only through `grist-widget-sdk`
+([docs](https://gristwidgets.com/docs)), never the `grist` global.
 
-**One-time setup** (the workflow can't do this part for you):
+`src/main.tsx`, the workflows and the build config are the template's: they
+come from `create-grist-widget`, and `pnpm exec create-grist-widget upgrade`
+(run on `dev` after Dependabot updates it) rewrites them
+([Upgrading a widget](https://gristwidgets.com/docs/cli/upgrading)).
+`AGENTS.md` says which files are which.
 
-1. **Settings → Pages** → Source: "Deploy from a branch" → branch `gh-pages`
-   → `/ (root)`. The workflow creates the `gh-pages` branch itself the first
-   time it runs (if it doesn't exist yet), but Pages needs to be pointed at
-   it once.
-   > ⚠️ **Not `main`.** If Pages is left on (or accidentally set to) `main`,
-   > it serves this repo's raw, unbuilt source — including a script tag
-   > pointing at `/src/main.tsx` — instead of the built site. The symptom is
-   > a blank/black page with a 404 for `/src/main.tsx` in the browser
-   > console, even though the workflow itself reports success (it pushed the
-   > right build to `gh-pages`; Pages is just reading from the wrong place).
-2. **Settings → Actions → General → Workflow permissions** → "Read and write
-   permissions". New repos sometimes default the workflow's token to
-   read-only, which would fail the push to `gh-pages` with a 403.
-3. If the repo is private, set **Pages visibility to Public** — a widget
-   embeds inside a Grist iframe, which needs a publicly reachable URL.
+## Release
 
-No manifest/widget-catalog file is generated — that's a multi-widget,
-Grist-widget-repository concept this single-widget template doesn't need.
-Paste your `/latest/` or `/v<version>/` URL directly into Grist's custom
-widget URL field.
+1. On `dev`, bump `package.json`'s `version`.
+2. Open a pull request from `dev` into `main`, and merge it once its checks
+   are green.
 
+Merging builds `/v<version>/` and updates `/latest/` and their demo pages.
+Without a version bump, nothing is published. The deploy workflow and its
+one-time repository settings are described in the
+[template's README](https://github.com/ArthurBlanchon/grist-widget-template#deployment).
