@@ -67,7 +67,7 @@ function EventBar({ feature }: { feature: GanttFeature }) {
   return <p className="min-w-0 flex-1 truncate text-xs">{feature.name}</p>
 }
 
-export function App() {
+function App() {
   useWidgetMetadata(WIDGET_METADATA)
   const w = useGrist<EventRow, EventMapped>()
   const { fetchSelectedTable } = w
