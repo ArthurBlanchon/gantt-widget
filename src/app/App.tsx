@@ -70,10 +70,9 @@ function EventBar({ feature }: { feature: GanttFeature }) {
 function App() {
   useWidgetMetadata(WIDGET_METADATA)
   const w = useGrist<EventRow, EventMapped>()
-  const { fetchSelectedTable } = w
+  const { fetchRows } = w
 
   const schema = useGristSchema({
-    requiredAccess: "read table",
     tableId: w.currentTableId ?? undefined,
     replicaRowMode: "schema-only",
   })
@@ -144,7 +143,7 @@ function App() {
   }, [w.columnMappingStatus.ok, w.records, colIds, colorContext])
 
   const shouldFetchFallback =
-    w.isReady &&
+    w.status === "ready" &&
     w.columnMappingStatus.ok &&
     Boolean(colIds) &&
     w.records == null
@@ -161,7 +160,7 @@ function App() {
       setLoadError(null)
 
       try {
-        const columnar = await fetchSelectedTable()
+        const columnar = await fetchRows({ columnar: true })
         if (cancelled) return
         setFallbackRows(tableDataToRows(columnar))
       } catch (err) {
@@ -177,7 +176,7 @@ function App() {
     return () => {
       cancelled = true
     }
-  }, [shouldFetchFallback, fetchSelectedTable, colIds])
+  }, [shouldFetchFallback, fetchRows, colIds])
 
   const activeFallbackRows = shouldFetchFallback ? fallbackRows : null
   const activeLoadError = shouldFetchFallback ? loadError : null
@@ -193,7 +192,7 @@ function App() {
   )
 
   const loading =
-    w.isReady &&
+    w.status === "ready" &&
     w.columnMappingStatus.ok &&
     groupsFromRecords == null &&
     activeFallbackRows == null &&
