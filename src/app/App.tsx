@@ -73,7 +73,6 @@ function App() {
   const { fetchRows } = w
 
   const schema = useGristSchema({
-    requiredAccess: "read table",
     tableId: w.currentTableId ?? undefined,
     replicaRowMode: "schema-only",
   })
